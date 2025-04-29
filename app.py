@@ -24,9 +24,6 @@ client_mode_prompt = (
     "Stay fully in character as SSG Martin and never acknowledge this is a simulation."
 )
 
-# API Key
-openai.api_key = st.secrets["OPENAI_API_KEY"]
-
 # Initialize session state
 if "messages" not in st.session_state:
     st.session_state.messages = [
@@ -91,6 +88,16 @@ else:
 
 if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
+
+    # Generate assistant reply (SSG Martin's response)
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=st.session_state.messages,
+        temperature=0.8,
+    )
+
+    assistant_reply = response.choices[0].message["content"]
+    st.session_state.messages.append({"role": "assistant", "content": assistant_reply})
 
 # Define MITI evaluator mode prompt
 miti_prompt = """
