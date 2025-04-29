@@ -1,11 +1,11 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 
 # Title
 st.title("MI Practice with SSG Joseph Martin")
 
-# API Key
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# Create OpenAI client with API key from Streamlit Secrets
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -39,19 +39,22 @@ for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-# User input
+# Handle user input
 if user_input := st.chat_input("Your response to SSG Martin..."):
+    # Add user message to session history
     st.session_state.messages.append({"role": "user", "content": user_input})
 
-    # ✅ Use OpenAI v1.0+ endpoint
-    response = openai.chat.completions.create(
+    # OpenAI API call
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=st.session_state.messages
     )
 
     assistant_message = response.choices[0].message.content
 
+    # Add assistant message to session history
     st.session_state.messages.append({"role": "assistant", "content": assistant_message})
 
+    # Display assistant reply
     with st.chat_message("assistant"):
         st.markdown(assistant_message)
