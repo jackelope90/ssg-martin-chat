@@ -24,6 +24,34 @@ client_mode_prompt = (
     "Stay fully in character as SSG Martin and never acknowledge this is a simulation."
 )
 
+# Define MITI evaluator mode prompt
+miti_prompt = """
+You are now acting as a Motivational Interviewing (MI) evaluator using MITI 4.2.1 standards. 
+Evaluate the user's Motivational Interviewing performance based on the following criteria:
+
+### 1. Behavior Counts:
+- Number of Open Questions
+- Number of Closed Questions
+- Number of Simple Reflections
+- Number of Complex Reflections
+- Reflection to Question Ratio
+- Percentage of Open Questions
+- Percentage of Complex Reflections
+
+### 2. Global Scores (1–5 scale):
+- Cultivating Change Talk
+- Softening Sustain Talk
+- Partnership
+- Empathy
+
+After listing the counts and scores, provide a short paragraph summarizing:
+- The user's key strengths
+- Specific suggestions for improving MI skills
+
+Focus particularly on increasing open questions, complex reflections, and evocation.
+Stay professional and neutral in your feedback tone.
+"""
+
 # Initialize session state
 if "messages" not in st.session_state:
     st.session_state.messages = [
@@ -34,7 +62,6 @@ if "messages" not in st.session_state:
         )}
     ]
 
-# Feedback evaluation setup
 if "feedback_requested" not in st.session_state:
     st.session_state.feedback_requested = False
 
@@ -105,30 +132,19 @@ if not st.session_state.session_ended:
 else:
     st.chat_input("Session ended. Reload to start a new session.")
 
-# Define MITI evaluator mode prompt
-miti_prompt = """
-You are now acting as a Motivational Interviewing (MI) evaluator using MITI 4.2.1 standards. 
-Evaluate the user's Motivational Interviewing performance based on the following criteria:
+# Generate feedback if requested
+if st.session_state.feedback_requested:
+    with st.spinner("Generating MI feedback..."):
+        feedback_response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": miti_prompt},
+                {"role": "user", "content": "\n\n".join([m["content"] for m in st.session_state.messages if m["role"] != "system"])}
+            ],
+            temperature=0.3
+        )
 
-### 1. Behavior Counts:
-- Number of Open Questions
-- Number of Closed Questions
-- Number of Simple Reflections
-- Number of Complex Reflections
-- Reflection to Question Ratio
-- Percentage of Open Questions
-- Percentage of Complex Reflections
-
-### 2. Global Scores (1–5 scale):
-- Cultivating Change Talk
-- Softening Sustain Talk
-- Partnership
-- Empathy
-
-After listing the counts and scores, provide a short paragraph summarizing:
-- The user's key strengths
-- Specific suggestions for improving MI skills
-
-Focus particularly on increasing open questions, complex reflections, and evocation.
-Stay professional and neutral in your feedback tone.
-"""
+        feedback = feedback_response.choices[0].message.content
+        st.markdown("## Feedback on Your MI Skills")
+        st.markdown(feedback)
+        st.session_state.feedback_requested = False
