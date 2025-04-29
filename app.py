@@ -80,24 +80,30 @@ with col2:
     if st.button("End Session", key="end-session-button"):
         st.session_state.session_ended = True
 
-# User input field
+# User input field and response handling
 if not st.session_state.session_ended:
     user_input = st.chat_input("Your response to SSG Martin...")
+    if user_input:
+        st.session_state.messages.append({"role": "user", "content": user_input})
+
+        # Generate assistant reply (SSG Martin's response)
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=st.session_state.messages,
+            temperature=0.8,
+        )
+
+        assistant_reply = response.choices[0].message.content
+        st.session_state.messages.append({"role": "assistant", "content": assistant_reply})
+
+        # Display the new messages in real-time
+        with chat_placeholder:
+            with st.chat_message("user"):
+                st.markdown(user_input)
+            with st.chat_message("assistant"):
+                st.markdown(assistant_reply)
 else:
-    user_input = None
-
-if user_input:
-    st.session_state.messages.append({"role": "user", "content": user_input})
-
-    # Generate assistant reply (SSG Martin's response)
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=st.session_state.messages,
-        temperature=0.8,
-    )
-
-    assistant_reply = response.choices[0].message.content
-    st.session_state.messages.append({"role": "assistant", "content": assistant_reply})
+    st.chat_input("Session ended. Reload to start a new session.")
 
 # Define MITI evaluator mode prompt
 miti_prompt = """
