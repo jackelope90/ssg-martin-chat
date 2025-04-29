@@ -93,47 +93,29 @@ if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
 
 # Define MITI evaluator mode prompt
-miti_prompt = (
-    "You are now acting as a Motivational Interviewing (MI) evaluator using MITI 4.2.1 standards. "
-    "Evaluate the user's Motivational Interviewing performance based on the following criteria:
+miti_prompt = """
+You are now acting as a Motivational Interviewing (MI) evaluator using MITI 4.2.1 standards. 
+Evaluate the user's Motivational Interviewing performance based on the following criteria:
 
-"
-    "### 1. Behavior Counts:
-"
-    "- Number of Open Questions
-"
-    "- Number of Closed Questions
-"
-    "- Number of Simple Reflections
-"
-    "- Number of Complex Reflections
-"
-    "- Reflection to Question Ratio
-"
-    "- Percentage of Open Questions
-"
-    "- Percentage of Complex Reflections
+### 1. Behavior Counts:
+- Number of Open Questions
+- Number of Closed Questions
+- Number of Simple Reflections
+- Number of Complex Reflections
+- Reflection to Question Ratio
+- Percentage of Open Questions
+- Percentage of Complex Reflections
 
-"
-    "### 2. Global Scores (1–5 scale):
-"
-    "- Cultivating Change Talk
-"
-    "- Softening Sustain Talk
-"
-    "- Partnership
-"
-    "- Empathy
+### 2. Global Scores (1–5 scale):
+- Cultivating Change Talk
+- Softening Sustain Talk
+- Partnership
+- Empathy
 
-"
-    "After listing the counts and scores, provide a short paragraph summarizing:
-"
-    "- The user's key strengths
-"
-    "- Specific suggestions for improving MI skills
-"
-    "Focus particularly on increasing open questions, complex reflections, and evocation.
+After listing the counts and scores, provide a short paragraph summarizing:
+- The user's key strengths
+- Specific suggestions for improving MI skills
 
-"
-    "Stay professional and neutral in your feedback tone."
-)
+Focus particularly on increasing open questions, complex reflections, and evocation.
+Stay professional and neutral in your feedback tone.
+"""
