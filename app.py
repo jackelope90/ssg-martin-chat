@@ -34,6 +34,9 @@ Evaluate the user's Motivational Interviewing performance based on the following
 - Number of Closed Questions
 - Number of Simple Reflections
 - Number of Complex Reflections
+- Number of Persuade Behaviors (with and without permission)
+- Number of Confront Behaviors
+- Number of Giving Information Statements
 - Reflection to Question Ratio
 - Percentage of Open Questions
 - Percentage of Complex Reflections
@@ -47,8 +50,9 @@ Evaluate the user's Motivational Interviewing performance based on the following
 After listing the counts and scores, provide a short paragraph summarizing:
 - The user's key strengths
 - Specific suggestions for improving MI skills
+- Specific flags for confrontational, directive, or judgmental language if present
 
-Focus particularly on increasing open questions, complex reflections, and evocation.
+Focus particularly on increasing open questions, complex reflections, and evocation. 
 Stay professional and neutral in your feedback tone.
 """
 
