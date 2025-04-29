@@ -2,14 +2,14 @@ import streamlit as st
 import openai
 
 # Title
-st.title("Motivational Interviewing Practice with SSG Joseph Martin-lite version")
+st.title("Motivational Interviewing Practice with SSG Joseph Martin - Lite Version")
 
 # API Key
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Define initial system prompts
 client_mode_prompt = (
-    "You are simulating a Motivational Interviewing (MI) practice session. "
+    "You are simulating a Motivational Interviewing (MI) practice session. You are the CLIENT (SSG Joseph Martin). The user is always the COUNSELOR. "
     "You are SSG Joseph Martin, a 28-year-old Health Care Specialist assigned to HHC, 1/8 Infantry, Fort Carson, Colorado. "
     "You self-referred to SUDCC after a verbal altercation raised concerns about drinking. "
     "You are initially suspicious and defensive toward the interviewer. "
@@ -37,4 +37,139 @@ if "messages" not in st.session_state:
         )}
     ]
 
-# (remainder of the existing code continues exactly as it is)
+# Feedback evaluation setup
+if "feedback_requested" not in st.session_state:
+    st.session_state.feedback_requested = False
+
+if "session_ended" not in st.session_state:
+    st.session_state.session_ended = False
+
+# Display chat messages
+chat_placeholder = st.container()
+with chat_placeholder:
+    for msg in st.session_state.messages:
+        if msg["role"] != "system":
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+
+# Feedback and End Session buttons
+st.markdown("""
+    <style>
+        div.stButton > button#feedback-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 32px;
+            font-size: 16px;
+            border-radius: 12px;
+            border: none;
+        }
+        div.stButton > button#end-session-button {
+            background-color: #f44336;
+            color: white;
+            padding: 15px 32px;
+            font-size: 16px;
+            border-radius: 12px;
+            border: none;
+            margin-top: 10px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("Request Feedback on My MI Skills", key="feedback-button"):
+        st.session_state.feedback_requested = True
+with col2:
+    if st.button("End Session", key="end-session-button"):
+        st.session_state.session_ended = True
+
+# User input field
+if not st.session_state.session_ended:
+    user_input = st.chat_input("Your response to SSG Martin...")
+else:
+    user_input = None
+
+if user_input:
+    st.session_state.messages.append({"role": "user", "content": user_input})
+
+# Define MITI evaluator mode prompt
+miti_prompt = (
+    "You are now acting as a Motivational Interviewing (MI) evaluator using MITI 4.2.1 standards. "
+    "Evaluate the user's Motivational Interviewing performance based on the following criteria:
+
+"
+    "### 1. Behavior Counts:
+"
+    "- Number of Open Questions
+"
+    "- Number of Closed Questions
+"
+    "- Number of Simple Reflections
+"
+    "- Number of Complex Reflections
+"
+    "- Reflection to Question Ratio
+"
+    "- Percentage of Open Questions
+"
+    "- Percentage of Complex Reflections
+
+"
+    "### 2. Global Scores (1–5 scale):
+"
+    "- Cultivating Change Talk
+"
+    "- Softening Sustain Talk
+"
+    "- Partnership
+"
+    "- Empathy
+
+"
+    "After listing the counts and scores, provide a short paragraph summarizing:
+"
+    "- The user's key strengths
+"
+    "- Specific suggestions for improving MI skills
+"
+    "Focus particularly on increasing open questions, complex reflections, and evocation.
+
+"
+    "Stay professional and neutral in your feedback tone."
+)
+
+# Generate and display response
+if user_input or st.session_state.feedback_requested:
+    if st.session_state.feedback_requested:
+        temp = st.session_state.messages.copy()
+        temp.insert(0, {"role": "system", "content": miti_prompt})
+        response = openai.chat.completions.create(
+            model="gpt-4o",
+            messages=temp
+        )
+        content = response.choices[0].message.content
+        st.session_state.messages.append({"role": "assistant", "content": content})
+        with chat_placeholder:
+            st.chat_message("assistant").markdown(f"""
+                <div style='background-color: #E8F4FD; padding: 15px; border-radius: 10px;'>
+                    <strong>🔍 MI Skill Evaluation:</strong><br><br>
+                    {content.replace('1. Behavior Counts:', '<br><strong>Behavior Counts:</strong>').replace('2. Global Scores (1–5 scale):', '<br><strong>Global Scores (1–5 scale):</strong>').replace('After listing the counts and scores, provide a short paragraph summarizing:', '<br><br><strong>Summary and Recommendations:</strong>')}
+                </div>
+            """, unsafe_allow_html=True)
+        st.session_state.feedback_requested = False
+        st.session_state.messages.insert(0, {"role": "system", "content": client_mode_prompt})
+        st.write("<script>window.scrollTo(0, document.body.scrollHeight);</script>", unsafe_allow_html=True)
+    else:
+        response = openai.chat.completions.create(
+            model="gpt-4o",
+            messages=st.session_state.messages
+        )
+        message = response.choices[0].message.content
+        st.session_state.messages.append({"role": "assistant", "content": message})
+        with chat_placeholder:
+            st.chat_message("assistant").markdown(message)
+        st.write("<script>window.scrollTo(0, document.body.scrollHeight);</script>", unsafe_allow_html=True)
+
+# Show final message if session ends
+if st.session_state.session_ended:
+    st.success("✅ Session ended. Thank you for practicing your MI skills!")
