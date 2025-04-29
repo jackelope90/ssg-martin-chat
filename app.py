@@ -1,11 +1,11 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 
 # Title
 st.title("Motivational Interviewing Practice with SSG Joseph Martin - Lite Version")
 
 # API Key
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Define initial system prompts
 client_mode_prompt = (
@@ -90,13 +90,13 @@ if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     # Generate assistant reply (SSG Martin's response)
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=st.session_state.messages,
         temperature=0.8,
     )
 
-    assistant_reply = response.choices[0].message["content"]
+    assistant_reply = response.choices[0].message.content
     st.session_state.messages.append({"role": "assistant", "content": assistant_reply})
 
 # Define MITI evaluator mode prompt
