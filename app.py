@@ -178,6 +178,48 @@ miti_prompt = (
 
 "
     "Stay professional and neutral in your feedback tone."
+) evaluator using MITI 4.2.1 standards. "
+    "Evaluate the user's Motivational Interviewing performance based on the following criteria:
+
+"
+    "### 1. Behavior Counts:
+"
+    "- Number of Open Questions
+"
+    "- Number of Closed Questions
+"
+    "- Number of Simple Reflections
+"
+    "- Number of Complex Reflections
+"
+    "- Reflection to Question Ratio
+"
+    "- Percentage of Open Questions
+"
+    "- Percentage of Complex Reflections
+
+"
+    "### 2. Global Scores (1–5 scale):
+"
+    "- Cultivating Change Talk
+"
+    "- Softening Sustain Talk
+"
+    "- Partnership
+"
+    "- Empathy
+
+"
+    "After listing the counts and scores, provide a short paragraph summarizing:
+"
+    "- The user's key strengths
+"
+    "- Specific suggestions for improving MI skills
+"
+    "Focus particularly on increasing open questions, complex reflections, and evocation.
+
+"
+    "Stay professional and neutral in your feedback tone."
 )
 
 # Generate and display response
